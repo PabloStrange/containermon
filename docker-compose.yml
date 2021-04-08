@@ -1,0 +1,69 @@
+version: "3.3"
+services:
+  haproxy:
+    image: eeacms/haproxy
+    container_name: haproxy
+    restart: unless-stopped
+    environment:
+      - DNS_ENABLED=true
+      - LOG_LEVEL=info
+      - HTTP_BASIC_AUTH_USER=${LOGINNAME}
+      - HTTP_BASIC_AUTH_PASSWORD=${PASSWORD}
+    links:
+      - glances
+      - dozzle
+      - netdata
+    volumes:
+      - "./haproxy.cfg:/usr/local/etc/haproxy/haproxy.cfg"
+      - "${CERT}:/certs/cert.pem:ro"
+    ports:
+      - "9998:9998"
+      - "9999:9999"
+      - "10000:10000"
+
+  glances:
+    image: nicolargo/glances:dev
+    container_name: glances
+    restart: unless-stopped
+    environment:
+      - GLANCES_OPT=-w
+    volumes:
+      - "/var/run/docker.sock:/var/run/docker.sock:ro"
+    pid: host
+    expose:
+      - "61208"
+      - "61209"
+
+  dozzle:
+    image: amir20/dozzle:latest
+    container_name: dozzle
+    restart: unless-stopped
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+    ports:
+      - "8080"
+  netdata:
+    image: netdata/netdata
+    container_name: netdata
+    hostname: example.com # set to fqdn of host
+    expose:
+      - "19999"
+    restart: unless-stopped
+    cap_add:
+      - SYS_PTRACE
+    security_opt:
+      - apparmor:unconfined
+    volumes:
+      - netdataconfig:/etc/netdata
+      - netdatalib:/var/lib/netdata
+      - netdatacache:/var/cache/netdata
+      - /etc/passwd:/host/etc/passwd:ro
+      - /etc/group:/host/etc/group:ro
+      - /proc:/host/proc:ro
+      - /sys:/host/sys:ro
+      - /etc/os-release:/host/etc/os-release:ro
+
+volumes:
+  netdataconfig:
+  netdatalib:
+  netdatacache:
