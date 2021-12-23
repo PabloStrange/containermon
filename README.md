@@ -1,7 +1,7 @@
 # containermon
 
 **containermon serves a few monitoring tools with HTTPS**
-* **webdav** is a file server which comes in very handy for uploading files per curl (in example from rancher or kuberntes containers). https://github.com/BytemarkHosting/docker-webdav
+* **webdav** (Stackfile by Bytemark) is a file server which comes in very handy for file transfers (in example from rancher or kuberntes containers using curl). https://github.com/BytemarkHosting/docker-webdav
 * **glances** is a top-like process and ressource monitoring. https://github.com/nicolargo/glances
 * **dozzle** is a very easy container log. https://github.com/amir20/dozzle
 * **netdata** is a high-fidelity infrastructure monitoring. https://github.com/netdata/netdata  
@@ -19,3 +19,5 @@ If you want to disable the basic auth. remove this part from haproxy.cfg for all
   acl auth_ok http_auth(authenticated)
   http-request auth realm haproxy_basic_auth unless auth_ok
 ```
+
+disclaimer: I did not create any of these applications. 
