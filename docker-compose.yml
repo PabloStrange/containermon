@@ -17,6 +17,7 @@ services:
       - "./haproxy.cfg:/usr/local/etc/haproxy/haproxy.cfg"
       - "${CERT}:/certs/cert.pem:ro"
     ports:
+      - "9997:9997"
       - "9998:9998"
       - "9999:9999"
       - "10000:10000"
@@ -45,7 +46,7 @@ services:
   netdata:
     image: netdata/netdata
     container_name: netdata
-    hostname: example.com # set to fqdn of host
+    hostname: your server # set to fqdn of host.
     expose:
       - "19999"
     restart: unless-stopped
@@ -62,6 +63,19 @@ services:
       - /proc:/host/proc:ro
       - /sys:/host/sys:ro
       - /etc/os-release:/host/etc/os-release:ro
+
+  webdav:
+    image: bytemark/webdav
+    container_name: webdav
+    restart: unless-stopped
+    expose:
+      - "80"
+    environment:
+      AUTH_TYPE: Digest
+      USERNAME: ${LOGINNAME}
+      PASSWORD: ${PASSWORD}
+    volumes:
+      - "./dav:/var/lib/dav"
 
 volumes:
   netdataconfig:
