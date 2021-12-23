@@ -9,7 +9,7 @@
 
 **quick start**
 1. clone the repository to your host
-2. adapt the .env file to refer to a certificate
+2. adapt the .env file to refer to a certificate as cert.pem
 3. start the stack: `docker-compose up -d`
 
 You can find webdav on port **9997**, glances on port **9998**, dozzle on **9999** and netdata on **10000**
