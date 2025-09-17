@@ -1,5 +1,26 @@
 version: "3.3"
 services:
+  certbot:
+    image: certbot/certbot:latest
+    container_name: certbot
+    restart: unless-stopped
+    volumes:
+      - "./certs:/etc/letsencrypt"
+      - "./webroot:/var/www/certbot"
+    command: certonly --webroot --webroot-path=/var/www/certbot --email ${CERTBOT_EMAIL} --agree-tos --no-eff-email -d ${DOMAIN} --force-renewal
+    depends_on:
+      - nginx-challenge
+
+  nginx-challenge:
+    image: nginx:alpine
+    container_name: nginx-challenge
+    restart: unless-stopped
+    ports:
+      - "80:80"
+    volumes:
+      - "./webroot:/var/www/certbot"
+      - "./nginx-challenge.conf:/etc/nginx/conf.d/default.conf"
+
   haproxy:
     image: eeacms/haproxy
     container_name: haproxy
@@ -15,12 +36,15 @@ services:
       - netdata
     volumes:
       - "./haproxy.cfg:/usr/local/etc/haproxy/haproxy.cfg"
-      - "${CERT}:/certs/cert.pem:ro"
+      - "./certs:/certs:ro"
     ports:
+      - "443:443"
       - "9997:9997"
       - "9998:9998"
       - "9999:9999"
       - "10000:10000"
+    depends_on:
+      - certbot
 
   glances:
     image: nicolargo/glances:dev
@@ -43,6 +67,7 @@ services:
       - /var/run/docker.sock:/var/run/docker.sock
     ports:
       - "8080"
+      
   netdata:
     image: netdata/netdata
     container_name: netdata
@@ -76,6 +101,18 @@ services:
       PASSWORD: ${PASSWORD}
     volumes:
       - "./dav:/var/lib/dav"
+
+  # Certbot renewal service
+  certbot-renewal:
+    image: certbot/certbot:latest
+    container_name: certbot-renewal
+    restart: unless-stopped
+    volumes:
+      - "./certs:/etc/letsencrypt"
+      - "./webroot:/var/www/certbot"
+    command: sh -c "trap exit TERM; while :; do certbot renew --webroot --webroot-path=/var/www/certbot; sleep 12h & wait $${!}; done;"
+    depends_on:
+      - nginx-challenge
 
 volumes:
   netdataconfig:
