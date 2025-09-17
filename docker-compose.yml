@@ -31,20 +31,28 @@ services:
       - HTTP_BASIC_AUTH_USER=${LOGINNAME}
       - HTTP_BASIC_AUTH_PASSWORD=${PASSWORD}
     links:
+      - monitoring-ui
       - glances
       - dozzle
       - netdata
+      - webdav
     volumes:
       - "./haproxy.cfg:/usr/local/etc/haproxy/haproxy.cfg"
       - "./certs:/certs:ro"
     ports:
       - "443:443"
-      - "9997:9997"
-      - "9998:9998"
-      - "9999:9999"
-      - "10000:10000"
     depends_on:
       - certbot
+
+  monitoring-ui:
+    image: nginx:alpine
+    container_name: monitoring-ui
+    restart: unless-stopped
+    volumes:
+      - "./monitoring-ui/index.html:/usr/share/nginx/html/index.html:ro"
+      - "./monitoring-ui/nginx.conf:/etc/nginx/conf.d/default.conf:ro"
+    expose:
+      - "80"
 
   glances:
     image: nicolargo/glances:dev
@@ -65,7 +73,7 @@ services:
     restart: unless-stopped
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
-    ports:
+    expose:
       - "8080"
       
   netdata:
