@@ -38,18 +38,18 @@ echo "🔧 Starting services..."
 
 # Start nginx-challenge first (needed for certificate validation)
 echo "🌐 Starting nginx challenge server..."
-docker-compose up -d nginx-challenge
+docker compose up -d nginx-challenge
 
 # Wait a moment for nginx to start
 sleep 5
 
 # Get initial certificate
 echo "🔐 Obtaining SSL certificate for $DOMAIN..."
-docker-compose run --rm certbot
+docker compose run --rm certbot
 
 # Start all services
 echo "🚀 Starting all services..."
-docker-compose up -d
+docker compose up -d
 
 echo "✅ Setup complete!"
 echo ""
@@ -63,7 +63,7 @@ echo "🔐 SSL certificates will be automatically renewed every 12 hours"
 echo "📧 Certificate expiration notifications will be sent to: $CERTBOT_EMAIL"
 echo ""
 echo "🔍 To check certificate status:"
-echo "   docker-compose logs certbot"
+echo "   docker compose logs certbot"
 echo ""
 echo "🔄 To manually renew certificates:"
-echo "   docker-compose run --rm certbot renew"
+echo "   docker compose run --rm certbot renew"
